@@ -1,4 +1,3 @@
-import time
 import datetime
 import enum
 import json
@@ -7,13 +6,8 @@ import random
 import re
 import string
 import pandas as pd
-from websocket import create_connection
-import requests
-import json
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -41,53 +35,54 @@ class TvDatafeed:
     __signin_headers = {'Referer': 'https://www.tradingview.com'}
     __ws_timeout = 5
 
-    def __init__(
-        self,
-        username: str = None,
-        password: str = None,
-    ) -> None:
-        """Create TvDatafeed object
+    def __auth(self, username, password):
+        token = None
+    
+        if (username is None or password is None):
+            return token
+    
+        driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
+        driver.get(self.__sign_in_url)
+    
+        # Pause the script and wait for you to manually close the window
+        while True:
+            time.sleep(1)
+    
+            # Check if the window is closed manually
+            if driver.window_handles == []:
+                break
+            
+        # Retrieve the authentication token from the page
+        token = driver.execute_script(
+            "return localStorage.getItem('auth_token')"
+        )
+    
+        # Close the browser
+        driver.quit()
+    
+        return token
 
+    def __init__(self, username: str = None, password: str = None) -> None:
+        """Create TvDatafeed object
+    
         Args:
             username (str, optional): tradingview username. Defaults to None.
             password (str, optional): tradingview password. Defaults to None.
         """
-
+    
         self.ws_debug = False
-
+    
         self.token = self.__auth(username, password)
-
+    
         if self.token is None:
             self.token = "unauthorized_user_token"
             logger.warning(
                 "you are using nologin method, data you access may be limited"
             )
-
+    
         self.ws = None
         self.session = self.__generate_session()
         self.chart_session = self.__generate_chart_session()
-
-    def __auth(self, username, password):
-        token = None  # Assign None by default
-        
-        if (username is None or password is None):
-            token = None
-        else:
-            driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
-            driver.get(self.__sign_in_url)
-    
-            # Pause the script and wait for you to manually close the window
-            while True:
-                time.sleep(1)
-    
-                # Check if the window is closed manually
-                if driver.window_handles == []:
-                    break
-                
-            # Close the browser
-            driver.quit()
-    
-        return token
 
     def __create_connection(self):
         logging.debug("creating websocket connection")
