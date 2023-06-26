@@ -77,32 +77,30 @@ class TvDatafeed:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
-            # Start a timer for 45 seconds
-            def timer_callback():
-                print("45 seconds have passed. Retrieving token now.")
+            # Loop for a maximum of 60 seconds
+            for _ in range(60):
+                time.sleep(1)  # Wait for 1 second
+                
+                # Check if the window is closed manually
+                if driver.window_handles == []:
+                    break
+                    
+                # Try to retrieve the token
                 try:
                     cookies = driver.get_cookies()
                     for cookie in cookies:
                         if cookie['name'] == 'sid':
-                            nonlocal token
                             token = cookie['value']
                             break
+                    if token is not None:
+                        break  # Break the loop if the token was found
                 except Exception as e:
                     print("Error retrieving token:", e)
-                finally:
-                    driver.quit()
-    
-            timer_thread = threading.Timer(45, timer_callback)
-            timer_thread.start()
-    
-            # Pause the script and wait for you to manually login
-            while True:
-                time.sleep(1)
-    
-                # Check if the window is closed manually or timer has expired
-                if driver.window_handles == [] or not timer_thread.is_alive():
-                    break
-                
+            else:
+                print("45 seconds have passed. Retrieving token now.")
+            
+            driver.quit()  # Quit the driver after the loop
+                    
         print("Token:", token)
     
         return token
