@@ -1,3 +1,4 @@
+import time
 import datetime
 import enum
 import json
@@ -72,34 +73,35 @@ class TvDatafeed:
         else:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
-
+    
             # Wait for the sign-in page to load
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "signin-form"))
             )
-
+    
             # Fill in the username and password fields
             driver.find_element(By.ID, "signin-form-login").send_keys(username)
             driver.find_element(By.ID, "signin-form-password").send_keys(password)
-
-            # Solve the captcha manually (you may need to implement the logic for this)
-
+    
+            # Delay to allow time for solving the captcha manually
+            time.sleep(30)  # Adjust the delay as needed
+    
             # Click the sign-in button
             driver.find_element(By.CSS_SELECTOR, ".tv-button__loader").click()
-
+    
             # Wait for the authentication token to be available
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "tv-feed-layout"))
             )
-
+    
             # Extract the authentication token from the page
             token = driver.execute_script(
                 "return localStorage.getItem('auth_token')"
             )
-
+    
             # Close the browser
             driver.quit()
-
+    
         return token
 
     def __create_connection(self):
