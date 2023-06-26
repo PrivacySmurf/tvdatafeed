@@ -83,8 +83,14 @@ class TvDatafeed:
             driver.find_element(By.ID, "signin-form-login").send_keys(username)
             driver.find_element(By.ID, "signin-form-password").send_keys(password)
     
-            # Wait for the captcha to be solved manually
-            WebDriverWait(driver, 300).until(
+            # Pause to allow time for solving the captcha manually
+            time.sleep(60)  # Adjust the pause duration as needed
+    
+            # Click the sign-in button
+            driver.find_element(By.CSS_SELECTOR, ".tv-button__loader").click()
+    
+            # Wait for the authentication token to be available
+            WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "tv-feed-layout"))
             )
     
