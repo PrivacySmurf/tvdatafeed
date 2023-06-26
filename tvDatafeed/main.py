@@ -74,38 +74,14 @@ class TvDatafeed:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
-            # Wait for the sign-in page to load
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "signin-form"))
-            )
+            # Pause the script and wait for you to manually close the window
+            while True:
+                time.sleep(1)
     
-            # Fill in the username and password fields
-            driver.find_element(By.ID, "signin-form-login").send_keys(username)
-            driver.find_element(By.ID, "signin-form-password").send_keys(password)
-    
-            # Start a timer to close the window after 30 seconds
-            timer = threading.Timer(30, driver.quit)
-            timer.start()
-    
-            # Pause to allow time for solving the captcha manually
-            time.sleep(60)  # Adjust the pause duration as needed
-    
-            # Cancel the timer if the window is closed manually before the timer ends
-            timer.cancel()
-    
-            # Click the sign-in button
-            driver.find_element(By.CSS_SELECTOR, ".tv-button__loader").click()
-    
-            # Wait for the authentication token to be available
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "tv-feed-layout"))
-            )
-    
-            # Extract the authentication token from the page
-            token = driver.execute_script(
-                "return localStorage.getItem('auth_token')"
-            )
-    
+                # Check if the window is closed manually
+                if driver.window_handles == []:
+                    break
+                
             # Close the browser
             driver.quit()
     
