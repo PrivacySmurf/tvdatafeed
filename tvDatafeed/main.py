@@ -68,6 +68,8 @@ class TvDatafeed:
         self.chart_session = self.__generate_chart_session()
 
     def __auth(self, username, password):
+        token = None  # Assign None by default
+        
         if (username is None or password is None):
             token = None
         else:
