@@ -74,21 +74,25 @@ class TvDatafeed:
         if (username is None or password is None):
             token = None
         else:
-            driver = webdriver.Chrome(executable_path='/usr/local/bin')  # Change to the appropriate driver for your browser
+            driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
-            # Start a timer for 30 seconds
+            # Start a timer for 45 seconds
             def timer_callback():
-                print("30 seconds have passed. Retrieving token now.")
-                cookies = driver.get_cookies()
-                for cookie in cookies:
-                    if cookie['name'] == 'sid':
-                        nonlocal token
-                        token = cookie['value']
-                        break
-                driver.quit()
+                print("45 seconds have passed. Retrieving token now.")
+                try:
+                    cookies = driver.get_cookies()
+                    for cookie in cookies:
+                        if cookie['name'] == 'sid':
+                            nonlocal token
+                            token = cookie['value']
+                            break
+                except Exception as e:
+                    print("Error retrieving token:", e)
+                finally:
+                    driver.quit()
     
-            timer_thread = threading.Timer(30, timer_callback)
+            timer_thread = threading.Timer(45, timer_callback)
             timer_thread.start()
     
             # Pause the script and wait for you to manually login
@@ -99,10 +103,10 @@ class TvDatafeed:
                 if driver.window_handles == [] or not timer_thread.is_alive():
                     break
                 
-        print("Token:", token)  # Debug statement
+        print("Token:", token)
     
         return token
-
+        
     def __create_connection(self):
         logging.debug("creating websocket connection")
         self.ws = create_connection(
