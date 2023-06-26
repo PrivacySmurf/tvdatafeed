@@ -35,6 +35,32 @@ class TvDatafeed:
     __signin_headers = {'Referer': 'https://www.tradingview.com'}
     __ws_timeout = 5
 
+    def __init__(
+        self,
+        username: str = None,
+        password: str = None,
+    ) -> None:
+        """Create TvDatafeed object
+
+        Args:
+            username (str, optional): tradingview username. Defaults to None.
+            password (str, optional): tradingview password. Defaults to None.
+        """
+
+        self.ws_debug = False
+
+        self.token = self.__auth(username, password)
+
+        if self.token is None:
+            self.token = "unauthorized_user_token"
+            logger.warning(
+                "you are using nologin method, data you access may be limited"
+            )
+
+        self.ws = None
+        self.session = self.__generate_session()
+        self.chart_session = self.__generate_chart_session()
+        
     def __auth(self, username, password):
         token = None
     
