@@ -69,14 +69,14 @@ class TvDatafeed:
 
     def __auth(self, username, password):
         token = None  # Assign None by default
-        
+    
         if (username is None or password is None):
             token = None
         else:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
-            # Pause the script and wait for you to manually close the window
+            # Pause the script and wait for you to manually login
             while True:
                 time.sleep(1)
     
@@ -84,8 +84,17 @@ class TvDatafeed:
                 if driver.window_handles == []:
                     break
                 
+            # Retrieve the token from the browser's cookies
+            cookies = driver.get_cookies()
+            for cookie in cookies:
+                if cookie['name'] == 'sid':
+                    token = cookie['value']
+                    break
+                
             # Close the browser
             driver.quit()
+    
+        print("Token:", token)  # Debug statement
     
         return token
 
