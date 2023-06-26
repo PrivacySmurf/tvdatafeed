@@ -98,8 +98,6 @@ class TvDatafeed:
                     print("Error retrieving token:", e)
             else:
                 print("45 seconds have passed. Retrieving token now.")
-            
-            driver.quit()  # Quit the driver after the loop
                     
         print("Token:", token)
     
