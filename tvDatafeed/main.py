@@ -9,6 +9,10 @@ import pandas as pd
 from websocket import create_connection
 import requests
 import json
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger(__name__)
 
@@ -63,21 +67,38 @@ class TvDatafeed:
         self.chart_session = self.__generate_chart_session()
 
     def __auth(self, username, password):
-
         if (username is None or password is None):
             token = None
-
         else:
-            data = {"username": username,
-                    "password": password,
-                    "remember": "on"}
-            try:
-                response = requests.post(
-                    url=self.__sign_in_url, data=data, headers=self.__signin_headers)
-                token = response.json()['user']['auth_token']
-            except Exception as e:
-                logger.error('error while signin')
-                token = None
+            driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
+            driver.get(self.__sign_in_url)
+
+            # Wait for the sign-in page to load
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "signin-form"))
+            )
+
+            # Fill in the username and password fields
+            driver.find_element(By.ID, "signin-form-login").send_keys(username)
+            driver.find_element(By.ID, "signin-form-password").send_keys(password)
+
+            # Solve the captcha manually (you may need to implement the logic for this)
+
+            # Click the sign-in button
+            driver.find_element(By.CSS_SELECTOR, ".tv-button__loader").click()
+
+            # Wait for the authentication token to be available
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "tv-feed-layout"))
+            )
+
+            # Extract the authentication token from the page
+            token = driver.execute_script(
+                "return localStorage.getItem('auth_token')"
+            )
+
+            # Close the browser
+            driver.quit()
 
         return token
 
