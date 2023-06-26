@@ -77,8 +77,8 @@ class TvDatafeed:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
-            # Loop for a maximum of 60 seconds
-            for _ in range(60):
+            # Loop for a maximum of 45 seconds
+            for _ in range(45):
                 time.sleep(1)  # Wait for 1 second
                 
                 # Check if the window is closed manually
