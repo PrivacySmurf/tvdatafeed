@@ -74,7 +74,7 @@ class TvDatafeed:
         if (username is None or password is None):
             token = None
         else:
-            driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
+            driver = webdriver.Chrome(executable_path='/usr/local/bin')  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
             # Start a timer for 30 seconds
