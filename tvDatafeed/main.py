@@ -14,6 +14,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -76,24 +77,28 @@ class TvDatafeed:
             driver = webdriver.Chrome()  # Change to the appropriate driver for your browser
             driver.get(self.__sign_in_url)
     
+            # Start a timer for 30 seconds
+            def timer_callback():
+                print("30 seconds have passed. Retrieving token now.")
+                cookies = driver.get_cookies()
+                for cookie in cookies:
+                    if cookie['name'] == 'sid':
+                        nonlocal token
+                        token = cookie['value']
+                        break
+                driver.quit()
+    
+            timer_thread = threading.Timer(30, timer_callback)
+            timer_thread.start()
+    
             # Pause the script and wait for you to manually login
             while True:
                 time.sleep(1)
     
-                # Check if the window is closed manually
-                if driver.window_handles == []:
+                # Check if the window is closed manually or timer has expired
+                if driver.window_handles == [] or not timer_thread.is_alive():
                     break
                 
-            # Retrieve the token from the browser's cookies
-            cookies = driver.get_cookies()
-            for cookie in cookies:
-                if cookie['name'] == 'sid':
-                    token = cookie['value']
-                    break
-                
-            # Close the browser
-            driver.quit()
-    
         print("Token:", token)  # Debug statement
     
         return token
