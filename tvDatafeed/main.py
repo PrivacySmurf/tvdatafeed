@@ -89,7 +89,7 @@ class TvDatafeed:
                 try:
                     cookies = driver.get_cookies()
                     for cookie in cookies:
-                        if cookie['name'] == 'sid':
+                        if cookie['name'] == 'sessionid':
                             token = cookie['value']
                             break
                     if token is not None:
