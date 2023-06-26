@@ -83,19 +83,15 @@ class TvDatafeed:
             driver.find_element(By.ID, "signin-form-login").send_keys(username)
             driver.find_element(By.ID, "signin-form-password").send_keys(password)
     
-            # Wait for the button to solve the captcha to appear
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, ".captcha-button"))
-            )
+            # Start a timer to close the window after 30 seconds
+            timer = threading.Timer(30, driver.quit)
+            timer.start()
     
             # Pause to allow time for solving the captcha manually
             time.sleep(60)  # Adjust the pause duration as needed
     
-            # Click the button to solve the captcha
-            driver.find_element(By.CSS_SELECTOR, ".captcha-button").click()
-    
-            # Pause to allow time for solving the captcha manually
-            time.sleep(60)  # Adjust the pause duration as needed
+            # Cancel the timer if the window is closed manually before the timer ends
+            timer.cancel()
     
             # Click the sign-in button
             driver.find_element(By.CSS_SELECTOR, ".tv-button__loader").click()
